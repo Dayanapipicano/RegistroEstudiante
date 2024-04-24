@@ -1,0 +1,56 @@
+{%include "base.html" %}
+
+<style>
+    /* Ocultar el menú inicialmente */
+    .dropdown {
+        display: none;
+        position: absolute; /* Ajustar según tu diseño */
+        background-color: white;
+        border: 1px solid #ccc;
+        z-index: 10; /* Para asegurarte de que se superponga correctamente */
+    }
+</style>
+<script>
+    function toggleDropdown() {
+        var dropdown = document.getElementById("numberDropdown");
+        if (dropdown.style.display === "none") {
+            dropdown.style.display = "block";
+        } else {
+            dropdown.style.display = "none";
+        }
+    }
+</script>
+{% block body %}
+<div class="mx-auto" style="max-width: 400px;">
+    <!-- Formulario -->
+    <form action="{% url 'registrar' %}" method="POST" class="mb-4 border p-4 rounded">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="knombre" class="form-label">Nombre</label>
+            <input type="text" id="knombre" name="knombre" class="form-control" placeholder="Nombre" value="{{Usuario.nombre}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kapellido" class="form-label">Apellido</label>
+            <input type="text" id="kapellido" name="kapellido" class="form-control" placeholder="Apellido" value="{{Usuario.apellido}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kcorreo" class="form-label">Correo</label>
+            <input type="text" id="kcorreo" name="kcorreo" class="form-control" placeholder="Correo" value="{{Usuario.correo}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kedad" class="form-label">Edad</label>
+            <input type="text" id="kedad" name="kedad" class="form-control" placeholder="Edad" value="{{Usuario.edad}}" required>
+        </div>
+        <div id="numberDropdown" class="dropdown">
+            <select name="numero">
+                <!-- Opciones del 1 al 12 -->
+                {% for i in range(1, 13) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+</div>
+{% endblock %}
