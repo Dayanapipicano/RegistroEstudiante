@@ -23,12 +23,12 @@ from apps.usuarios.views import principal
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',principal.as_view(),name='inicio'),
+
     
 
     #ESTUDIANTE
-    path('',principal.as_view(),name='inicio'),
-    path('registrar/',registrar_estudiante,name='registrar'),
+    path('inidex',principal.as_view(),name='inicio'),
+    path('',registrar_estudiante,name='registrar'),
     path('editar_estudiante/<int:id>',editar_estudiante,name='editar_estudiante'),
     path('eliminar_estudiante/<int:id>',eliminar_estudiante,name='eliminar_estudiante'),
     path('listar_estudiente', paginacion, name='listar_estudiante'),

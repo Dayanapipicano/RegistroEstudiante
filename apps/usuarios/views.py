@@ -22,21 +22,26 @@ class principal(ListView):
 #REGISTRO DE ESTUDIANTE
 
 def registrar_estudiante(request):
+    
+   
     if request.method == 'POST':
         nombre = request.POST.get('knombre')
         apellido = request.POST.get('kapellido')
         edad = request.POST.get('kedad')
         correo = request.POST.get('kcorreo')
+   
 
         Estudiante.objects.create(
             nombre=nombre,
             apellido=apellido,
             edad=edad,
-            correo=correo
+            correo=correo,
+           
         )
-
+        
         return redirect('listar_estudiante')
-
+    else:
+        return render(request, 'registro.html')
 
 #EDITAR ESTUDIANTE 
 
