@@ -1,0 +1,30 @@
+{%include "base.html" %}
+
+
+{% block body %}
+<div class="mx-auto" style="max-width: 400px;">
+    <!-- Formulario -->
+    <form method="POST" class="mb-4 border p-4 rounded">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="knombre" class="form-label">Nombre</label>
+            <input type="text" id="knombre" name="knombre" class="form-control" placeholder="Nombre" value="{{estudiante.nombre}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kapellido" class="form-label">Apellido</label>
+            <input type="text" id="kapellido" name="kapellido" class="form-control" placeholder="Apellido" value="{{estudiante.apellido}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kcorreo" class="form-label">Correo</label>
+            <input type="text" id="kcorreo" name="kcorreo" class="form-control" placeholder="Correo" value="{{estudiante.correo}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="kedad" class="form-label">Edad</label>
+            <input type="text" id="kedad" name="kedad" class="form-control" placeholder="Edad" value="{{estudiante.edad}}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+</div>
+{% endblock %}

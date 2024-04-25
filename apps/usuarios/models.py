@@ -11,7 +11,7 @@ class Estudiante(models.Model):
     correo = models.EmailField(unique=True)
     edad = models.IntegerField()
     estado = models.BooleanField(default=True)
-    cursos = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    #cursos = models.ForeignKey(Curso, on_delete=models.CASCADE)
     
 
 class Materia(models.Model):

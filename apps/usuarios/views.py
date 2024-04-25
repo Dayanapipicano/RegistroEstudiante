@@ -20,26 +20,23 @@ class principal(ListView):
     
     
 #REGISTRO DE ESTUDIANTE
+
 def registrar_estudiante(request):
-    
-    if request.methos == 'POST':
+    if request.method == 'POST':
         nombre = request.POST.get('knombre')
         apellido = request.POST.get('kapellido')
         edad = request.POST.get('kedad')
         correo = request.POST.get('kcorreo')
-        curso_id = request.POST.get('kcurso')
-        
+
         Estudiante.objects.create(
-            nombre = nombre,
-            apellido = apellido,
-            edad = edad,
-            correo = correo,
-            curso_id = curso_id
+            nombre=nombre,
+            apellido=apellido,
+            edad=edad,
+            correo=correo
         )
-        
+
         return redirect('listar_estudiante')
-    else:
-        return render(request, 'registro.html')
+
 
 #EDITAR ESTUDIANTE 
 
@@ -53,15 +50,16 @@ def editar_estudiante(request, id):
         apellido = request.POST.get('kapellido')
         edad = request.POST.get('kedad')
         correo = request.POST.get('kcorreo')
-        curso_id = request.POST.get('kcurso')
+        
         
         
         estudiante.nombre = nombre
         estudiante.apellido = apellido
         estudiante.edad = edad
         estudiante.correo = correo
-        estudiante.curso_id = curso_id
-        
+
+        estudiante.save()  
+    
         return redirect('listar_estudiante')
     return render(request, 'editar_estudiante.html', {'estudiante':estudiante})
 
@@ -83,7 +81,7 @@ def eliminar_estudiante(request,id):
     if request.method == 'GET':
         estudiante.estado = False
         estudiante.save()
-        return redirect('paginacion')
+        return redirect('listar_estudiante')
 
 
 #CREAR CURSO
@@ -121,7 +119,10 @@ def editar_curso(request,id):
 
 def listar_curso(request):
     curso = Curso.objects.all() 
-    return render(request,'curso/listar_curso.html', {'curso':curso})
+    return render(request,'curso/listar_curso.html',{'curso':curso})
+
+
+
 
 #ELIMINAR CURSO
 
