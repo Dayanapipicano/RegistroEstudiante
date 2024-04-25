@@ -87,6 +87,13 @@ def eliminar_estudiante(request,id):
         estudiante.estado = False
         estudiante.save()
         return redirect('listar_estudiante')
+    
+def activar_estudiante(request,id):
+    estudiante = Estudiante.objects.get(id=id)
+    if request.method == 'GET':
+        estudiante.estado = True
+        estudiante.save()
+        return redirect('listar_estudiante')
 
 
 #CREAR CURSO
