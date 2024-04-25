@@ -1,66 +1,65 @@
 {%include "base.html" %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Obtener las tablas para arrastrar y soltar
-        const porHacerTable = document.getElementById('por-hacer-table');
-        const haciendoTable = document.getElementById('haciendo-table');
-        
-        // Configurar eventos de arrastre para filas
-        document.querySelectorAll('.draggable-row').forEach((fila) => {
-            fila.setAttribute('draggable', true);
-            
-            fila.addEventListener('dragstart', (event) => {
-                event.dataTransfer.setData('text/plain', fila.getAttribute('data-id'));
-            });
+// JavaScript para actualizar el estado al arrastrar y soltar
+document.addEventListener('DOMContentLoaded', function() {
+    const porHacerTable = document.getElementById('por-hacer-table');
+    const haciendoTable = document.getElementById('haciendo-table');
+
+    const filas = document.querySelectorAll('.draggable-row');
+    filas.forEach((fila) => {
+        fila.setAttribute('draggable', true);
+
+        // Evento de arrastre
+        fila.addEventListener('dragstart', (event) => {
+            event.dataTransfer.setData('text', fila.getAttribute('data-id'));
         });
-    
-        // Función para obtener el token CSRF
-        function getCSRFToken() {
-            let csrfToken = null;
-            const cookies = document.cookie.split(';');
-            cookies.forEach((cookie) => {
-                const [key, value] = cookie.trim().split('=');
-                if (key === 'csrftoken') {
-                    csrfToken = decodeURIComponent(value);
-                }
-            });
-            return csrfToken;
+    });
+
+    const getCSRFToken = () => {
+        const cookieName = 'csrftoken';
+        let cookieValue = null;
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            const trimmedCookie = cookie.trim();
+            if (trimmedCookie.startsWith(`${cookieName}=`)) {
+                cookieValue = decodeURIComponent(trimmedCookie.split('=')[1]);
+                break;
+            }
         }
-    
-        // Configurar el evento de soltar para cada tabla
-        [porHacerTable, haciendoTable].forEach((table) => {
-            table.addEventListener('dragover', (event) => {
-                event.preventDefault(); // Necesario para permitir el soltar
-            });
-    
-            table.addEventListener('drop', (event) => {
-                event.preventDefault(); // Prevenir comportamientos no deseados
-                const itemId = event.dataTransfer.getData('text/plain');
-                const nuevoEstado = table.id === 'por-hacer-table';
-    
-                // Realizar la solicitud AJAX para cambiar el estado
-                fetch(`/cambiar_estado/${itemId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(), // Obtener el token CSRF
-                    },
-                    body: JSON.stringify({ estado: nuevoEstado }),
-                }).then((response) => {
-                    if (response.ok) {
-                        // Mover la fila a la tabla correspondiente
-                        const fila = document.querySelector(`.draggable-row[data-id="${itemId}"]`);
-                        table.querySelector('tbody').appendChild(fila);
-                    } else {
-                        console.error('Error al cambiar el estado');
-                    }
-                }).catch((error) => {
-                    console.error('Error en la solicitud AJAX:', error);
-                });
+        return cookieValue;
+    };
+
+    // Evento de soltar para cada tabla
+    [porHacerTable, haciendoTable].forEach((table) => {
+        table.addEventListener('dragover', (event) => {
+            event.preventDefault(); // Necesario para permitir el soltar
+        });
+
+        table.addEventListener('drop', (event) => {
+            event.preventDefault();
+
+            const itemId = event.dataTransfer.getData('text'); // ID del objeto arrastrado
+            const estado = (table.id === 'por-hacer-table'); // Si se soltó en "por hacer", el estado es True
+
+            fetch(`/cambiar_estado/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(), // Token CSRF
+                },
+                body: JSON.stringify({ estado }), // Enviar el estado
+            }).then((response) => {
+                if (response.ok) {
+                    location.reload(); 
+                } else {
+                    console.error('Error al cambiar el estado');
+                }
             });
         });
     });
+});
+
     
     
     </script>
