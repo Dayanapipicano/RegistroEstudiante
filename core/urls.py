@@ -40,4 +40,6 @@ urlpatterns = [
     path('listar_curso', listar_curso, name='listar_curso'),
     path('editar_curso/<int:id>', editar_curso, name='editar_curso'),
     path('eliminar_curso/<int:id>', eliminar_curso, name='eliminar_curso'),
+    
+    path('cambiar_estado/<int:item_id>/', views.cambiar_estado, name='cambiar_estado'),
 ]

@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from apps.usuarios.models import Estudiante
 from django.core.paginator import Paginator
@@ -7,7 +8,9 @@ from django.shortcuts import  redirect
 from django.views.generic import  ListView
 
 
-
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 #VISTA PRINCIPAL
 class principal(ListView):
     """
@@ -148,3 +151,19 @@ def eliminar_curso(request,id):
     return redirect('listar_curso')
     
     
+@csrf_exempt  # Permite solicitudes POST sin token CSRF
+@require_http_methods(['POST'])
+def cambiar_estado(request, item_id):
+    try:
+        item = Estudiante.objects.get(id=item_id)
+        data = json.loads(request.body)  # Obtener datos de la solicitud
+        item.estado = data['estado']  # Cambiar el estado
+        item.save()  # Guardar cambios
+
+        return JsonResponse({'success': 'Estado actualizado'}, status=200)
+
+    except Estudiante.DoesNotExist:
+        return JsonResponse({'error': 'Objeto no encontrado'}, status=404)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
