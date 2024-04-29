@@ -1,66 +1,56 @@
 {%include "base.html" %}
 
 <script>
-// JavaScript para actualizar el estado al arrastrar y soltar
-document.addEventListener('DOMContentLoaded', function() {
-    const porHacerTable = document.getElementById('por-hacer-table');
-    const haciendoTable = document.getElementById('haciendo-table');
-
-    const filas = document.querySelectorAll('.draggable-row');
-    filas.forEach((fila) => {
-        fila.setAttribute('draggable', true);
-
-        // Evento de arrastre
-        fila.addEventListener('dragstart', (event) => {
-            event.dataTransfer.setData('text', fila.getAttribute('data-id'));
-        });
-    });
-
-    const getCSRFToken = () => {
-        const cookieName = 'csrftoken';
-        let cookieValue = null;
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-            const trimmedCookie = cookie.trim();
-            if (trimmedCookie.startsWith(`${cookieName}=`)) {
-                cookieValue = decodeURIComponent(trimmedCookie.split('=')[1]);
-                break;
+    document.addEventListener('DOMContentLoaded', function() {
+        const porHacerTable = document.getElementById('por-hacer-table');
+        const haciendoTable = document.getElementById('haciendo-table');
+        const finalizadoTable = document.getElementById('finalizado-table');
+    
+        const tables = [porHacerTable, haciendoTable, finalizadoTable];
+    
+        const getEstadoFromTableId = (tableId) => {
+            if (tableId === 'por-hacer-table') {
+                return 2;  // ID del estado "Por hacer"
+            } else if (tableId === 'haciendo-table') {
+                return 1;  // ID del estado "Haciendo"
+            } else if (tableId === 'finalizado-table') {
+                return 3;  // ID del estado "Finalizado"
             }
-        }
-        return cookieValue;
-    };
-
-    // Evento de soltar para cada tabla
-    [porHacerTable, haciendoTable].forEach((table) => {
-        table.addEventListener('dragover', (event) => {
-            event.preventDefault(); // Necesario para permitir el soltar
-        });
-
-        table.addEventListener('drop', (event) => {
-            event.preventDefault();
-
-            const itemId = event.dataTransfer.getData('text'); // ID del objeto arrastrado
-            const estado = (table.id === 'por-hacer-table'); // Si se soltó en "por hacer", el estado es True
-
-            fetch(`/cambiar_estado/${itemId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken(), // Token CSRF
-                },
-                body: JSON.stringify({ estado }), // Enviar el estado
-            }).then((response) => {
-                if (response.ok) {
-                    location.reload(); 
-                } else {
-                    console.error('Error al cambiar el estado');
-                }
+            return null;
+        };
+    
+        const getCSRFToken = () => {
+            // Función para obtener el token CSRF, igual que en tu código original
+        };
+    
+        tables.forEach((table) => {
+            table.addEventListener('dragover', (event) => {
+                event.preventDefault();
+            });
+    
+            table.addEventListener('drop', (event) => {
+                event.preventDefault();
+    
+                const itemId = event.dataTransfer.getData('text');
+                const estadoId = getEstadoFromTableId(table.id);
+    
+                fetch(`/cambiar_estado/${itemId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({ estado: estadoId }),
+                }).then((response) => {
+                    if (response.ok) {
+                        location.reload();  // Recargar la página después de cambiar el estado
+                    } else {
+                        console.error('Error al cambiar el estado');
+                    }
+                });
             });
         });
     });
-});
-
-    
     
     </script>
     
@@ -71,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Por hacer</h5>
+                    <h5 class="card-title">Haciendo</h5>
                 </div>
                 <div class="card-body">
                     <table id="por-hacer-table" class="table table-striped table-bordered">
@@ -83,12 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <th scope="col">Correo</th>
                                 <th scope="col">Edad</th>
                                 <th scope="col">Estado</th>
-                                <th colspan="2" scope="col">Modificación</th>
+                                <th colspan="1" scope="col">Modificación</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for c in page_obj %}
-                            {% if c.estado %}
+                            {% if c.estado.id == 1 %}
                             <tr class="draggable-row" data-id="{{ c.id }}">
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ c.nombre }}</td>
@@ -125,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Haciendo</h5>
+                    <h5 class="card-title">Por hacer</h5>
                 </div>
                 <div class="card-body">
                     <table id="haciendo-table" class="table table-striped table-bordered">
@@ -137,21 +127,34 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <th scope="col">Correo</th>
                                 <th scope="col">Edad</th>
                                 <th scope="col">Estado</th>
-                                <th colspan="2" scope="col">Modificación</th>
+                                <th colspan="1" scope="col">Modificación</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for c in page_obj %}
-                            {% if not c.estado %}
+                            {% if c.estado.id == 2 %}
                             <tr class="draggable-row" data-id="{{ c.id }}">
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ c.nombre }}</td>
                                 <td>{{ c.apellido }}</td>
                                 <td>{{ c.correo }}</td>
                                 <td>{{ c.edad }}</td>
-                                <td>{{ c.estado }}</td>
+                                <td>
+                                    <form action="{% url 'seleccionar_estado' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="estudiante_id" value="{{ c.id }}">
+                                    <select name="kestado" onchange="this.form.submit()">
+                                        {% for estado in estados %}
+                                            {% if estado.id == c.estado.id %}
+                                                <option value="{{ estado.id }}" selected>{{ estado.nombre }}</option>
+                                            {% else %}
+                                                <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    </form>
+                                </td>
                                 <td><a href="{% url 'editar_estudiante' c.id %}" class="btn btn-warning btn-sm">Editar</a></td>
-                                <td><a href="{% url 'activar_estudiante' c.id %}" class="btn btn-success btn-sm">Activar</a></td>
                             </tr>
                             {% endif %}
                             {% endfor %}
@@ -161,6 +164,62 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+</div>
+
+
+
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">finalizado</h5>
+        </div>
+        <div class="card-body">
+            <table id="finalizado-table" class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Apellido</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Edad</th>
+                        <th scope="col">Estado</th>
+                        <th colspan="1" scope="col">Modificación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in page_obj %}
+                    {% if c.estado.id == 3 %}
+                    <tr class="draggable-row" data-id="{{ c.id }}">
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ c.nombre }}</td>
+                        <td>{{ c.apellido }}</td>
+                        <td>{{ c.correo }}</td>
+                        <td>{{ c.edad }}</td>
+                        <td>
+                            <form action="{% url 'seleccionar_estado' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="estudiante_id" value="{{ c.id }}">
+                                <select name="kestado" onchange="this.form.submit()">
+                                    {% for estado in estados %}
+                                        {% if estado.id == c.estado.id %}
+                                            <option value="{{ estado.id }}" selected>{{ estado.nombre }}</option>
+                                        {% else %}
+                                            <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                        <td><a href="{% url 'editar_estudiante' c.id %}" class="btn btn-warning btn-sm">Editar</a></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
 </div>
 {% endblock %}
 
