@@ -23,6 +23,13 @@
             <input type="number" id="kedad" name="kedad" class="form-control" placeholder="Edad" required>
         </div>
        
+        <label for="kestado">Estado tarea:</label>
+        <select id="kestado" name="kestado">
+            {% for estado in estados %}
+                <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+            {% endfor %}
+        </select><br>
+
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 </div>

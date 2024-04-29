@@ -95,9 +95,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td>{{ c.apellido }}</td>
                                 <td>{{ c.correo }}</td>
                                 <td>{{ c.edad }}</td>
-                                <td>{{ c.estado }}</td>
+                                <td>
+                                    <form action="{% url 'seleccionar_estado' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estudiante_id" value="{{ c.id }}">
+                                        <select name="kestado" onchange="this.form.submit()">
+                                            {% for estado in estados %}
+                                                {% if estado.id == c.estado.id %}
+                                                    <option value="{{ estado.id }}" selected>{{ estado.nombre }}</option>
+                                                {% else %}
+                                                    <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                </td>
                                 <td><a href="{% url 'editar_estudiante' c.id %}" class="btn btn-warning btn-sm">Editar</a></td>
-                                <td><a href="{% url 'eliminar_estudiante' c.id %}" class="btn btn-danger btn-sm">Eliminar</a></td>
+                                
+
                             </tr>
                             {% endif %}
                             {% endfor %}

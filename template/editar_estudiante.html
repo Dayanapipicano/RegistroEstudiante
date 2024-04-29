@@ -23,6 +23,21 @@
             <input type="text" id="kedad" name="kedad" class="form-control" placeholder="Edad" value="{{estudiante.edad}}" required>
         </div>
 
+
+        <div class="mb-3">
+    
+            <select name="kestado" id="kestado">
+                {% for estado in estados %}
+                    {% if estado.id == estudiante.estado_id %}
+                        <option value="{{ estado.id }}" selected>{{ estado.nombre }}</option>
+                    {% else %}
+                        <option value="{{ estado.id }}">{{ estado.nombre }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            
+        </div>
+        
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 </div>

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from apps.usuarios.views import crear_curso,listar_curso,principal, paginacion, editar_estudiante, editar_curso, eliminar_estudiante, eliminar_curso,registrar_estudiante,activar_estudiante
+from apps.usuarios.views import crear_estado,listar_estado,principal, paginacion, editar_estudiante, editar_estado, haciendo_estudiante ,eliminar_estado,registrar_estudiante,por_hacer_estudiante,seleccionar_estado
 from apps.usuarios import views
 from apps.usuarios.views import principal
 
@@ -30,16 +30,17 @@ urlpatterns = [
     path('inidex',principal.as_view(),name='inicio'),
     path('',registrar_estudiante,name='registrar'),
     path('editar_estudiante/<int:id>',editar_estudiante,name='editar_estudiante'),
-    path('eliminar_estudiante/<int:id>',eliminar_estudiante,name='eliminar_estudiante'),
-    path('activar_estudiante/<int:id>',activar_estudiante,name='activar_estudiante'),
+    path('haciendo_estudiante/<int:id>',haciendo_estudiante,name='haciendo_estudiante'),
+    path('por_hacer_estudiante/<int:id>',por_hacer_estudiante,name='por_hacer_estudiante'),
     path('listar_estudiente', paginacion, name='listar_estudiante'),
 
     
     #CURSO
-    path('crear_curso', crear_curso, name='crear_curso'),
-    path('listar_curso', listar_curso, name='listar_curso'),
-    path('editar_curso/<int:id>', editar_curso, name='editar_curso'),
-    path('eliminar_curso/<int:id>', eliminar_curso, name='eliminar_curso'),
+    path('crear_estado', crear_estado, name='crear_estado'),
+    path('listar_estado', listar_estado, name='listar_estado'),
+    path('editar_estado/<int:id>', editar_estado, name='editar_estado'),
+    path('eliminar_estado/<int:id>', eliminar_estado, name='eliminar_estado'),
     
     path('cambiar_estado/<int:item_id>/', views.cambiar_estado, name='cambiar_estado'),
+    path('seleccionar/', seleccionar_estado, name='seleccionar_estado'),
 ]
