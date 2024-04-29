@@ -94,41 +94,7 @@ def paginacion(request):
     # Pasar el objeto de página y los estados a la plantilla
     return render(request, 'listar_estudiante.html', {'page_obj': page_obj, 'estados': estados})
 
-#PONER INACTIVO EL ESTUDIANTE 
-def haciendo_estudiante(request,id,):
-    
-    estudiante = get_object_or_404(Estudiante, id=id)
 
-    if request.method == 'GET':
-        # Obtener el estado actual del estudiante
-        estado_actual = estudiante.estado
-
-        # Actualizar el estado del estudiante según el estado actual
-        if estado_actual == 'por hacer':
-            estudiante.estado = 'haciendo'
-        elif estado_actual == 'finalizado':
-            estudiante.estado = 'haciendo'
-
-        # Guardar los cambios en la base de datos
-        estudiante.save()
-
-        # Redirigir a la página que muestra la lista de estudiantes
-        return redirect('listar_estudiante')
-
-    
-def por_hacer_estudiante(request,id):
-    estudiante = Estudiante.objects.get(id=2)
-    if request.method == 'GET':
-        estudiante.estado = 'por hacer'
-        estudiante.save()
-        return redirect('listar_estudiante')
-
-def finalizado_estudiante(request,id):
-    estudiante = Estudiante.objects.get(id=3)
-    if request.method == 'GET':
-        estudiante.estado = 'finalizado'
-        estudiante.save()
-        return redirect('listar_estudiante')
 
 def seleccionar_estado(request):
     estudiante_id = request.POST.get('estudiante_id')
@@ -191,19 +157,18 @@ def eliminar_estado(request,id):
     return redirect('listar_estado')
     
     
-@csrf_exempt  # Permite solicitudes POST sin token CSRF
-@require_http_methods(['POST'])
+@csrf_exempt  # Deshabilita la protección CSRF
 def cambiar_estado(request, item_id):
-    try:
-        item = Estudiante.objects.get(id=item_id)
-        data = json.loads(request.body)  # Obtener datos de la solicitud
-        item.estado = data['estado']  # Cambiar el estado
-        item.save()  # Guardar cambios
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        nuevo_estado_id = data.get('estado')
 
-        return JsonResponse({'success': 'Estado actualizado'}, status=200)
+        try:
+            item = Estudiante.objects.get(id=item_id)
+            item.estado_id = nuevo_estado_id
+            item.save()
+            return JsonResponse({'status': 'ok'})
+        except Estudiante.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Item no encontrado'}, status=404)
 
-    except Estudiante.DoesNotExist:
-        return JsonResponse({'error': 'Objeto no encontrado'}, status=404)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)

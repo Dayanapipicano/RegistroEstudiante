@@ -1,63 +1,71 @@
 {%include "base.html" %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const porHacerTable = document.getElementById('por-hacer-table');
-        const haciendoTable = document.getElementById('haciendo-table');
-        const finalizadoTable = document.getElementById('finalizado-table');
-    
-        const tables = [porHacerTable, haciendoTable, finalizadoTable];
-    
-        const getEstadoFromTableId = (tableId) => {
-            if (tableId === 'por-hacer-table') {
-                return 2;  // ID del estado "Por hacer"
-            } else if (tableId === 'haciendo-table') {
-                return 1;  // ID del estado "Haciendo"
-            } else if (tableId === 'finalizado-table') {
-                return 3;  // ID del estado "Finalizado"
-            }
-            return null;
+    document.addEventListener('DOMContentLoaded', () => {
+        // Configuración de arrastrar y soltar
+        const setupDraggable = (row) => {
+            row.setAttribute('draggable', 'true');
+            row.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text/plain', row.dataset.id);
+            });
         };
     
-        const getCSRFToken = () => {
-            // Función para obtener el token CSRF, igual que en tu código original
-        };
-    
-        tables.forEach((table) => {
+        // Configurar eventos de arrastrar y soltar para cada tabla
+        const setupDropZone = (table, estadoId) => {
             table.addEventListener('dragover', (event) => {
                 event.preventDefault();
             });
     
             table.addEventListener('drop', (event) => {
                 event.preventDefault();
-    
-                const itemId = event.dataTransfer.getData('text');
-                const estadoId = getEstadoFromTableId(table.id);
+                const itemId = event.dataTransfer.getData('text/plain');
     
                 fetch(`/cambiar_estado/${itemId}/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
                     },
                     body: JSON.stringify({ estado: estadoId }),
-                }).then((response) => {
+                })
+                .then((response) => {
                     if (response.ok) {
-                        location.reload();  // Recargar la página después de cambiar el estado
+                        location.reload(); //recargar pagina
+                        // Mover la fila al nuevo destino
+                        const row = document.querySelector(`tr[data-id="${itemId}"]`);
+                        table.querySelector('tbody').appendChild(row);
                     } else {
                         console.error('Error al cambiar el estado');
+                        // Mensaje de error al usuario
                     }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Mensaje para el usuario si algo sale mal
                 });
             });
-        });
+        };
+    
+        // Configuración de las zonas de arrastrar y soltar
+        setupDropZone(document.getElementById('por-hacer-table'), 1); // Por hacer
+        setupDropZone(document.getElementById('haciendo-table'), 2); // Haciendo
+        setupDropZone(document.getElementById('finalizado-table'), 3); // Finalizado
+    
+        // Configurar las filas como arrastrables
+        document.querySelectorAll('.draggable-row').forEach(setupDraggable);
     });
     
     </script>
     
-
+    <style>
+        .separador {
+            margin: 20px;
+        }
+        </style>
 {% block body %}
-<div class="container">
-    <div class="row">
+
+<div class="separador">
+<div class="mt-4">
+    <div class="row" >
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
@@ -80,7 +88,7 @@
                             {% for c in page_obj %}
                             {% if c.estado.id == 1 %}
                             <tr class="draggable-row" data-id="{{ c.id }}">
-                                <th scope="row">{{ forloop.counter }}</th>
+                                <th scope="row">{{ forloop.counter }}</th> 
                                 <td>{{ c.nombre }}</td>
                                 <td>{{ c.apellido }}</td>
                                 <td>{{ c.correo }}</td>
@@ -111,6 +119,11 @@
                 </div>
             </div>
         </div>
+
+
+
+
+
 
         <div class="col-md-6">
             <div class="card">
@@ -167,6 +180,7 @@
 </div>
 
 
+<div class="row mt-4">
 
 <div class="col-md-6">
     <div class="card">
@@ -219,7 +233,9 @@
         </div>
     </div>
 </div>
+
 </div>
+
 </div>
 {% endblock %}
 

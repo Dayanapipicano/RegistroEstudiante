@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from apps.usuarios.views import crear_estado,listar_estado,principal, paginacion, editar_estudiante, editar_estado, haciendo_estudiante ,eliminar_estado,registrar_estudiante,por_hacer_estudiante,seleccionar_estado
+from apps.usuarios.views import crear_estado,listar_estado,principal, paginacion, editar_estudiante, editar_estado,eliminar_estado,registrar_estudiante,seleccionar_estado
 from apps.usuarios import views
 from apps.usuarios.views import principal
 
@@ -30,8 +30,7 @@ urlpatterns = [
     path('inidex',principal.as_view(),name='inicio'),
     path('',registrar_estudiante,name='registrar'),
     path('editar_estudiante/<int:id>',editar_estudiante,name='editar_estudiante'),
-    path('haciendo_estudiante/<int:id>',haciendo_estudiante,name='haciendo_estudiante'),
-    path('por_hacer_estudiante/<int:id>',por_hacer_estudiante,name='por_hacer_estudiante'),
+
     path('listar_estudiente', paginacion, name='listar_estudiante'),
 
     
